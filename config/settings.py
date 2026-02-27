@@ -1,17 +1,17 @@
 import os
 from pathlib import Path
 from datetime import timedelta
-import dj_database_url # БҰЛ КІТАПХАНАНЫ ОРНАТУ КЕРЕК: pip install dj-database-url
+import dj_database_url # БҰЛ КІТАПХАНАНЫ REQUIREMENTS.TXT-КЕ ҚОСЫҢЫЗ
 
 # Жобаның негізгі директориясын анықтау
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Қауіпсіздік баптаулары (RENDER-ден оқылады)
+# Қауіпсіздік баптаулары (Render environment variables-тен оқылады)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*'] # Немесе Render сілтемеңізді жазыңыз
+ALLOWED_HOSTS = ['*'] # Production-да өз доменіңізді жазған дұрыс
 
-# Қолданылатын бағдарламалар мен пакеттер
+# Қолданылатын бағдарламалар
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Статикалық файлдар үшін
+    'whitenoise.middleware.WhiteNoiseMiddleware', # WHITENOISE ҚОСЫҢЫЗ
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,22 +54,24 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'libraries': {
-                'staticfiles': 'django.templatetags.static',
-            },
         },
     },
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Дерекқор баптаулары (PostgreSQL - RENDER үшін)
+# Дерекқор баптаулары (RENDER POSTGRESQL)
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
         conn_max_age=600
     )
 }
+
+# Статикалық файлдар баптаулары (PRODUCTION)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Пайдаланушы моделі
 AUTH_USER_MODEL = 'pages.User'
@@ -94,16 +96,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Халықаралықтандыру баптаулары
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
-# Статикалық файлдар баптаулары
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Әдепкі primary key түрі
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
