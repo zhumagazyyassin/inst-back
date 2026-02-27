@@ -105,7 +105,7 @@ STATIC_URL = 'static/'
 
 # Әдепкі primary key түрі
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-import os  # Егер бұл импорт жоқ болса, басына қосыңыз
+import os
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
