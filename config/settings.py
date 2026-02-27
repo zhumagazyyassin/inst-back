@@ -1,14 +1,15 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url # БҰЛ КІТАПХАНАНЫ ОРНАТУ КЕРЕК: pip install dj-database-url
 
 # Жобаның негізгі директориясын анықтау
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Қауіпсіздік баптаулары (Өндірісте (production) бұларды жасыру керек!)
-SECRET_KEY = 'django-insecure-your-secret-key-here'
-DEBUG = True
-ALLOWED_HOSTS = []
+# Қауіпсіздік баптаулары (RENDER-ден оқылады)
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = ['*'] # Немесе Render сілтемеңізді жазыңыз
 
 # Қолданылатын бағдарламалар мен пакеттер
 INSTALLED_APPS = [
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Статикалық файлдар үшін
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -52,37 +54,35 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'staticfiles': 'django.templatetags.static',
+            },
         },
     },
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Дерекқор баптаулары (PostgreSQL)
+# Дерекқор баптаулары (PostgreSQL - RENDER үшін)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres', 
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 # Пайдаланушы моделі
 AUTH_USER_MODEL = 'pages.User'
 
-# REST Framework баптаулары: Аутентификация және Пагинация
+# REST Framework баптаулары
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',  # Браузер үшін
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
-    # МҰНДА ПАГИНАЦИЯ ҚОСЫЛҒАН
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10  # Әр бетте 10 жазба көрсетіледі
+    'PAGE_SIZE': 10
 }
 
 # Simple JWT баптаулары
@@ -101,11 +101,9 @@ USE_I18N = True
 USE_TZ = True
 
 # Статикалық файлдар баптаулары
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Әдепкі primary key түрі
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-import os
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
