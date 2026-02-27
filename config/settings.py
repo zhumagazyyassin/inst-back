@@ -2,12 +2,15 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+# Жобаның негізгі директориясын анықтау
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Қауіпсіздік баптаулары (Өндірісте (production) бұларды жасыру керек!)
 SECRET_KEY = 'django-insecure-your-secret-key-here'
 DEBUG = True
 ALLOWED_HOSTS = []
 
-# Мұнда пробелдер мен атаулар толық жөнделді
+# Қолданылатын бағдарламалар мен пакеттер
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,6 +27,7 @@ INSTALLED_APPS = [
     # Қолданба
     'pages',
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,6 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Дерекқор баптаулары (PostgreSQL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -65,15 +70,22 @@ DATABASES = {
     }
 }
 
+# Пайдаланушы моделі
 AUTH_USER_MODEL = 'pages.User'
 
+# REST Framework баптаулары: Аутентификация және Пагинация
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication', # Токен үшін
-        'rest_framework.authentication.SessionAuthentication',       # МЫНА ЖОЛДЫ ҚОС (Браузер үшін)
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Браузер үшін
         'rest_framework.authentication.BasicAuthentication',
     ),
+    # МҰНДА ПАГИНАЦИЯ ҚОСЫЛҒАН
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10  # Әр бетте 10 жазба көрсетіледі
 }
+
+# Simple JWT баптаулары
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -82,9 +94,14 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# Халықаралықтандыру баптаулары
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# Статикалық файлдар баптаулары
 STATIC_URL = 'static/'
+
+# Әдепкі primary key түрі
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
