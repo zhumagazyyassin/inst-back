@@ -1,4 +1,5 @@
+Django
+gunicorn
 dj-database-url
 whitenoise
-gunicorn
 psycopg2-binary
