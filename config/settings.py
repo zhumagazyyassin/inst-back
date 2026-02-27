@@ -65,7 +65,17 @@ DATABASES = {
 # Статикалық файлдар баптаулары (PRODUCTION үшін)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  <-- Мұны өшіріңіз
+
+# Оның орнына мынаны қосыңыз:
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Медиа файлдар (суреттер)
 MEDIA_URL = '/media/'
