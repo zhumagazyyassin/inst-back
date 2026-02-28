@@ -8,8 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Қауіпсіздік баптаулары (Render environment variables-тен оқылады)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']  # Render-де барлық хосттарға рұқсат беру
-
+ALLOWED_HOSTS = ['instagram-clone-1-7wmz.onrender.com', 'localhost', '127.0.0.1']
 # Қолданбалар тізімі (Қолданбаларыңызды қосыңыз)
 INSTALLED_APPS = [
     'django.contrib.admin',
