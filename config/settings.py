@@ -57,10 +57,10 @@ TEMPLATES = [
 # WSGI баптауы
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Дерекқор баптаулары (Render POSTGRESQL үшін)
+# Дерекқор баптаулары (Render POSTGRESQL және Local SQLite үшін)
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'), # ТҮЗЕТІЛДІ: Local-ға SQLite
         conn_max_age=600
     )
 }
@@ -68,6 +68,7 @@ DATABASES = {
 # Статикалық файлдар баптаулары (PRODUCTION үшін)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] # ТҮЗЕТІЛДІ: Бұл жолды қосыңыз егер static папкаңыз болса
 
 # WhiteNoise баптауы
 STORAGES = {
@@ -82,3 +83,6 @@ STORAGES = {
 # Медиа файлдар (суреттер)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Қолданушы моделін өзгерту
+AUTH_USER_MODEL = 'pages.User' # ТҮЗЕТІЛДІ: Бұл жолды қосыңыз!
