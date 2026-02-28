@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-import dj_database_url  #requirements.txt-те болуы керек
+import dj_database_url  # requirements.txt-те болуы керек
 
 # Жобаның негізгі папкасы
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,9 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Қауіпсіздік баптаулары (Render environment variables-тен оқылады)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']  # Render-де барлық хосттарға рұқсат беру
 
-# Қолданбалар тізімі (Өз қолданбаларыңызды қосыңыз)
+# Қолданбалар тізімі (Қолданбаларыңызды қосыңыз)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,12 +19,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Қолданбаларыңыз:
-    # 'myapp', 
+    'main',
+    'pages',
+    'posts',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise қосу
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise қосу
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -33,8 +35,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# МАҢЫЗДЫ: Мұны өз жобаңыздың атымен ауыстырыңыз
-ROOT_URLCONF = 'instagram_clone.urls' 
+# URLs баптауы (config папкасында орналасқан)
+ROOT_URLCONF = 'config.urls'  # ТҮЗЕТІЛДІ
 
 TEMPLATES = [
     {
@@ -52,6 +54,7 @@ TEMPLATES = [
     },
 ]
 
+# WSGI баптауы
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Дерекқор баптаулары (Render POSTGRESQL үшін)
@@ -65,9 +68,8 @@ DATABASES = {
 # Статикалық файлдар баптаулары (PRODUCTION үшін)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  <-- Мұны өшіріңіз
 
-# Оның орнына мынаны қосыңыз:
+# WhiteNoise баптауы
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
