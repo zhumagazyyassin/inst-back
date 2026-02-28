@@ -1,12 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+# Қолданушы моделі: Django-ның стандартты моделін кеңейтеміз
 class User(AbstractUser):
     bio = models.TextField(blank=True, null=True)
     avatar_url = models.CharField(max_length=512, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.username
+
 class Post(models.Model):
+    # 'User' моделіне сілтеме жасаймыз
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     caption = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,16 +21,16 @@ class Post(models.Model):
 
 class Media(models.Model):
     post = models.ForeignKey(Post, related_name='media', on_delete=models.CASCADE)
-    file = models.FileField(upload_to='posts/')
-    # Добавь blank=True, null=True
+    file = models.FileField(upload_to='posts/', blank=True, null=True)
     url = models.CharField(max_length=512, blank=True, null=True)
     mime_type = models.CharField(max_length=64, blank=True, null=True)
     order_idx = models.IntegerField(default=0)
     caption = models.TextField(blank=True, null=True)
-    
+
 class Follow(models.Model):
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
-    followee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    # Қақтығысты болдырмау үшін related_name міндетті
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_set')
+    followee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers_set')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
