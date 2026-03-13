@@ -1,63 +1,27 @@
-from rest_framework import generics, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.shortcuts import get_object_or_404
-from .models import User, Post, Media, Comment, Like, Follow
-from .serializers import *
+from .models import Post, Like
+from .serializers import LikeSerializer
 
-# --- USERS ---
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny] # Тіркелу үшін ашық
-
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-# --- POSTS ---
-class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all().order_by('-created_at')
-    serializer_class = PostSerializer
-    permission_classes = [AllowAny]
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [AllowAny]
-
-# --- COMMENTS ---
-class CommentListCreateView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
-
-class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
-
-# --- LIKES (Toggle: Басу және Алып тастау) ---
 class LikeToggleView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LikeSerializer
+
+    # 1. ОСЫ ГЕТ ПОСТТЫҢ ЛАЙКТАРЫН КӨРУГЕ МҮМКІНДІК БЕРЕДІ
+    def get(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        likes = Like.objects.filter(post=post)
+        serializer = LikeSerializer(likes, many=True)
+        return Response(serializer.data)
+
+    # 2. ОСЫ ПОСТ ЛАЙК БАСУҒА НЕМЕСЕ ҚАЙТАРУҒА АРНАЛҒАН
     def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
-        if not created:
-            like.delete()
-            return Response({"message": "Like removed"}, status=status.HTTP_200_OK)
-        return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
-
-# --- FOLLOWS ---
-class FollowListCreateView(generics.ListCreateAPIView):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = [AllowAny]
-
-class FollowDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = [AllowAny]
+        post = generics.get_object_or_404(Post, pk=pk)
+        like_queryset = Like.objects.filter(user=request.user, post=post)
+        
+        if like_queryset.exists():
+            like_queryset.delete()
+            return Response({"message": "Unliked", "is_liked": False}, status=status.HTTP_200_OK)
+        else:
+            Like.objects.create(user=request.user, post=post)
+            return Response({"message": "Liked", "is_liked": True}, status=status.HTTP_201_CREATED)
