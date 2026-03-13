@@ -16,10 +16,7 @@ class Media(models.Model):
     url = models.URLField(blank=True, null=True)
     order_idx = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        ordering = ['order_idx']
-
-class Comment(models.Model):
+class Comment(models.Model): # ОСЫ МОДЕЛЬ СЕНДЕ ЖОҚ БОЛУЫ МҮМКІН
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()

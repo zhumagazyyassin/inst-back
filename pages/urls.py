@@ -6,6 +6,6 @@ from .views import (
 urlpatterns = [
     path('posts/', PostListCreateView.as_view()),
     path('posts/<int:pk>/like/', LikeToggleView.as_view()),
-    path('likes/', LikeListView.as_view()), # Міне, сен сұраған лайктар ГЕТ-і
+    path('likes/', LikeListView.as_view()),
     path('follows/', FollowListCreateView.as_view()),
 ]

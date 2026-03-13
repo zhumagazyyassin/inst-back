@@ -87,7 +87,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Қолданушы моделін өзгерту
-AUTH_USER_MODEL = 'pages.User' # ТҮЗЕТІЛДІ: Бұл жолды қосыңыз!
+AUTH_USER_MODEL = 'pages.User'
 # REST_FRAMEWORK сөздігі осылай жабылуы керек
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
