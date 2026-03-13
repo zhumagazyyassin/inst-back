@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .models import Post, Like, Follow, User
-from .serializers import PostSerializer, LikeSerializer, FollowSerializer, UserSerializer
+from .models import Post, Like
+from .serializers import PostSerializer, LikeSerializer
 
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by('-created_at')
@@ -10,11 +10,6 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-class LikeListView(generics.ListAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 class LikeToggleView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -35,11 +30,3 @@ class LikeToggleView(generics.GenericAPIView):
         else:
             Like.objects.create(user=request.user, post=post)
             return Response({"message": "Liked", "is_liked": True}, status=status.HTTP_201_CREATED)
-
-class FollowListCreateView(generics.ListCreateAPIView):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(follower=self.request.user)

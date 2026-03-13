@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Media, Comment, Like, Follow
+from .models import User, Post, Media, Like
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,10 +8,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LikeSerializer(serializers.ModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')
-    post_caption = serializers.ReadOnlyField(source='post.caption')
     class Meta:
         model = Like
-        fields = ['id', 'user', 'user_name', 'post', 'post_caption']
+        fields = ['id', 'user', 'user_name', 'post']
 
 class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.ReadOnlyField(source='author.username')
@@ -27,10 +26,3 @@ class PostSerializer(serializers.ModelSerializer):
         if user and user.is_authenticated:
             return obj.likes.filter(user=user).exists()
         return False
-
-class FollowSerializer(serializers.ModelSerializer):
-    follower_name = serializers.ReadOnlyField(source='follower.username')
-    following_name = serializers.ReadOnlyField(source='following.username')
-    class Meta:
-        model = Follow
-        fields = ['id', 'follower', 'follower_name', 'following', 'following_name']
