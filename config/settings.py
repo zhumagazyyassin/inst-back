@@ -3,16 +3,16 @@ from pathlib import Path
 import dj_database_url
 from datetime import timedelta
 
-# Жобаның негізгі жолы
+# 1. НЕГІЗГІ ЖОЛДАР
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Қауіпсіздік (DEBUG-ты Render-де False қылған дұрыс)
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-key-here')
-DEBUG = True  # Қателерді көру үшін әзірше True қалдыр
+# 2. ҚАУІПСІЗДІК
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
+DEBUG = True # Қателерді көру үшін True, бірақ Render-де False қылған дұрыс
 
 ALLOWED_HOSTS = ['*', 'instagram-clone-1-7wmz.onrender.com', 'localhost', '127.0.0.1']
 
-# 1. ҚОЛДАНБАЛАР (Бәрі осында болуы керек)
+# 3. ҚОЛДАНБАЛАР (Бәрі осы ретпен тұруы керек)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -30,12 +30,12 @@ INSTALLED_APPS = [
     'pages',
 ]
 
-# 2. MIDDLEWARE (Реттілігін бұзба!)
+# 4. MIDDLEWARE (CorsMiddleware міндетті түрде Common-нан жоғары)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Статика үшін
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS міндетті түрде Common-нан жоғары
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -63,7 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# 3. БАЗА (Render Postgres + Local SQLite)
+# 5. БАЗА (SQLite + Postgres)
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -71,7 +71,10 @@ DATABASES = {
     )
 }
 
-# 4. REST FRAMEWORK & JWT (Токен алу үшін)
+# 6. ҚОЛДАНУШЫ МОДЕЛІ (5 таблица істеуі үшін міндетті)
+AUTH_USER_MODEL = 'pages.User'
+
+# 7. REST FRAMEWORK & JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -81,7 +84,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Токеннің өмір сүру уақыты (тексеруге ыңғайлы болу үшін)
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -90,15 +92,26 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Қолданушы моделі (Сенің pages қолданбаңдағы User)
-AUTH_USER_MODEL = 'pages.User'
+# 8. ПАРОЛЬ ТЕКСЕРУ (Тест кезінде қиналмау үшін кейде бұны бос қалдырады)
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
-# CORS (Postman-нан кедергісіз жіберу үшін)
-CORS_ALLOW_ALL_ORIGINS = True
+# 9. ТІЛ ЖӘНЕ УАҚЫТ
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
-# Статикалық файлдар
+# 10. СТАТИКА ЖӘНЕ CORS
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True # Postman-нан кедергісіз жіберу үшін
+APPEND_SLASH = True

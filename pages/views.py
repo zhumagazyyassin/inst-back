@@ -1,18 +1,20 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Post, Like
-from .serializers import PostSerializer, LikeSerializer
+from .serializers import PostSerializer, LikeSerializer # Енді қате болмауы керек
 
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 class LikeToggleView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LikeSerializer
+
     def post(self, request, pk):
         post = generics.get_object_or_404(Post, pk=pk)
         like_queryset = Like.objects.filter(user=request.user, post=post)
