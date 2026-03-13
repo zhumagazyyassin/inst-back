@@ -15,17 +15,27 @@ class MediaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
+    user_name = serializers.ReadOnlyField(source='user.username')
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'user', 'text', 'created_at']
+        fields = ['id', 'post', 'user', 'user_name', 'text', 'created_at']
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    author_name = serializers.ReadOnlyField(source='author.username')
     media = MediaSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
-    likes_count = serializers.IntegerField(source='likes_count_set.count', read_only=True)
+    likes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'caption', 'media', 'comments', 'likes_count', 'created_at']
+        fields = ['id', 'author', 'author_name', 'caption', 'media', 'comments', 'likes_count', 'created_at']
+
+    def get_likes_count(self, obj):
+        return obj.post_likes.count() # Like моделіндегі related_name-ге байланысты
+
+class FollowSerializer(serializers.ModelSerializer):
+    follower_name = serializers.ReadOnlyField(source='follower.username')
+    following_name = serializers.ReadOnlyField(source='following.username')
+    class Meta:
+        model = Follow
+        fields = '__all__'

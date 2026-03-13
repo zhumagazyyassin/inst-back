@@ -88,13 +88,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Қолданушы моделін өзгерту
 AUTH_USER_MODEL = 'pages.User' # ТҮЗЕТІЛДІ: Бұл жолды қосыңыз!
+# REST_FRAMEWORK сөздігі осылай жабылуы керек
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny', # УАҚЫТША БӘРІНЕ АШЫҚ ҚЫЛАМЫЗ
+        'rest_framework.permissions.AllowAny', 
     ),
+} # Осы жақша міндетті түрде болуы керек!
 
+# МЫНА ЖОЛДАР СӨЗДІКТЕН БӨЛЕК, ТӨМЕНДЕ ТҰРУЫ ТИІС:
+CORS_ALLOW_ALL_ORIGINS = True  
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https'),
 
-}

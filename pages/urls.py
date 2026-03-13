@@ -1,21 +1,23 @@
 from django.urls import path
-from .views import (
-    RegisterView, UserListAPIView, UserDetailView,
-    PostListCreateView, PostDetailView,
-    CommentListCreateView, LikeToggleView
-)
+from .views import *
 
 urlpatterns = [
-    # --- USERS ---
-    path('register/', RegisterView.as_view(), name='register'),
-    path('users/', UserListAPIView.as_view(), name='user-list'),
-    path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    # Users
+    path('users/', UserListCreateView.as_view()),
+    path('users/<int:pk>/', UserDetailView.as_view()),
     
-    # --- POSTS ---
-    path('posts/', PostListCreateView.as_view(), name='post-list'),
-    path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    # Posts
+    path('posts/', PostListCreateView.as_view()),
+    path('posts/<int:pk>/', PostDetailView.as_view()),
     
-    # --- ACTIONS (Comments & Likes) ---
-    path('posts/<int:pk>/comments/', CommentListCreateView.as_view(), name='post-comments'),
-    path('posts/<int:pk>/like/', LikeToggleView.as_view(), name='post-like'),
+    # Comments
+    path('comments/', CommentListCreateView.as_view()),
+    path('comments/<int:pk>/', CommentDetailView.as_view()),
+    
+    # Likes
+    path('posts/<int:pk>/like/', LikeToggleView.as_view()),
+    
+    # Follows
+    path('follows/', FollowListCreateView.as_view()),
+    path('follows/<int:pk>/', FollowDetailView.as_view()),
 ]

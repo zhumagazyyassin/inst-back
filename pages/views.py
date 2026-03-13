@@ -1,55 +1,48 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import User, Post, Comment, Like
-from .serializers import UserSerializer, PostSerializer, CommentSerializer
+from .models import User, Post, Media, Comment, Like, Follow
+from .serializers import *
 
 # --- USERS ---
-class UserListAPIView(generics.ListAPIView):
+class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]  # IsAuthenticated-ті осыған ауыстыр
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-class UserListAPIView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny] # Тіркелу үшін ашық
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 # --- POSTS ---
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 # --- COMMENTS ---
 class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['pk'])
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user, post_id=self.kwargs['pk'])
+    permission_classes = [AllowAny]
 
-# --- LIKES ---
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [AllowAny]
+
+# --- LIKES (Toggle: Басу және Алып тастау) ---
 class LikeToggleView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
@@ -57,3 +50,14 @@ class LikeToggleView(generics.GenericAPIView):
             like.delete()
             return Response({"message": "Like removed"}, status=status.HTTP_200_OK)
         return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
+
+# --- FOLLOWS ---
+class FollowListCreateView(generics.ListCreateAPIView):
+    queryset = Follow.objects.all()
+    serializer_class = FollowSerializer
+    permission_classes = [AllowAny]
+
+class FollowDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Follow.objects.all()
+    serializer_class = FollowSerializer
+    permission_classes = [AllowAny]
