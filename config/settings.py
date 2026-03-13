@@ -4,6 +4,10 @@ import dj_database_url  # requirements.txt-те болуы керек
 
 # Жобаның негізгі папкасы
 BASE_DIR = Path(__file__).resolve().parent.parent
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+]
 
 # Қауіпсіздік баптаулары (Render environment variables-тен оқылады)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
@@ -56,10 +60,9 @@ TEMPLATES = [
 # WSGI баптауы
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Дерекқор баптаулары (Render POSTGRESQL және Local SQLite үшін)
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'), # ТҮЗЕТІЛДІ: Local-ға SQLite
+        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'), 
         conn_max_age=600
     )
 }
@@ -85,3 +88,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Қолданушы моделін өзгерту
 AUTH_USER_MODEL = 'pages.User' # ТҮЗЕТІЛДІ: Бұл жолды қосыңыз!
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny', # УАҚЫТША БӘРІНЕ АШЫҚ ҚЫЛАМЫЗ
+    ),
+
+
+}
