@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from .models import User, Post, Like, Comment, Follow, Media
 from .serializers import PostSerializer, UserSerializer, CommentSerializer, MediaSerializer
@@ -112,6 +112,7 @@ class UserFollowingListView(generics.ListAPIView):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny] # Тіркелу үшін рұқсат керек емес
 
 class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserSerializer
