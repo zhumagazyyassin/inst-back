@@ -3,11 +3,16 @@ from pathlib import Path
 import dj_database_url
 from datetime import timedelta
 
+# 1. НЕГІЗГІ ЖОЛДАР
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 2. ҚАУІПСІЗДІК
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
-DEBUG = True
+DEBUG = True 
+
 ALLOWED_HOSTS = ['*', 'instagram-clone-1-7wmz.onrender.com', 'localhost', '127.0.0.1']
 
+# 3. ҚОЛДАНБАЛАР
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -15,12 +20,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Сыртқы пакеттер
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'pages', # Сенің басты қосымшаң
+    
+    # Сенің қолданбаң
+    'pages',
 ]
 
+# 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -34,8 +44,27 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+# 5. TEMPLATES (Қате шыққан бөлім осы - толық жөнделді)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# 6. БАЗА (SQLite + Postgres)
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -43,8 +72,10 @@ DATABASES = {
     )
 }
 
-AUTH_USER_MODEL = 'pages.User' # Кастомный User қолдану
+# 7. ҚОЛДАНУШЫ МОДЕЛІ
+AUTH_USER_MODEL = 'pages.User'
 
+# 8. REST FRAMEWORK & JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -62,6 +93,27 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# 9. ПАРОЛЬ ТЕКСЕРУ
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# 10. ТІЛ ЖӘНЕ УАҚЫТ
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# 11. СТАТИКА ЖӘНЕ CORS
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-CORS_ALLOW_ALL_ORIGINS = True
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Бұл жол Warnings (ескертулерді) жояды
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True 
+APPEND_SLASH = True
