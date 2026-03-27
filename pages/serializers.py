@@ -3,15 +3,12 @@ from .models import User, Post, Media, Comment, Like, Follow
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'bio', 'avatar_url']
 
     def create(self, validated_data):
-        # Парольді хэштеп сақтау үшін .create_user міндетті!
-        user = User.objects.create_user(**validated_data)
-        return user
+        return User.objects.create_user(**validated_data)
 
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,6 +17,7 @@ class MediaSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author_name = serializers.ReadOnlyField(source='author.username')
+    author = serializers.ReadOnlyField(source='author.id') # Автоматты түрде бекітіледі
     class Meta:
         model = Comment
         fields = ['id', 'post', 'author', 'author_name', 'text', 'created_at']
@@ -31,6 +29,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.ReadOnlyField(source='author.username')
+    author = serializers.ReadOnlyField(source='author.id') # Қатені түзететін жол осы
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
     media = MediaSerializer(many=True, read_only=True)
     
