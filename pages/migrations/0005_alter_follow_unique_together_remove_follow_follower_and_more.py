@@ -10,18 +10,22 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # 1. Пропускаем изменение уникальности
         # migrations.AlterUniqueTogether(
         #    name='follow',
         #    unique_together=None,
         # ),
-        migrations.RemoveField(
-            model_name='follow',
-            name='follower',
-        ),
-        migrations.RemoveField(
-            model_name='follow',
-            name='following',
-        ),
+        
+        # 2. Комментируем удаление полей именно этой модели
+        # migrations.RemoveField(
+        #     model_name='follow',
+        #     name='follower',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='follow',
+        #     name='following',
+        # ),
+
         migrations.RemoveField(
             model_name='media',
             name='post',
@@ -29,9 +33,12 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='Comment',
         ),
-        migrations.DeleteModel(
-            name='Follow',
-        ),
+        
+        # 3. Комментируем само удаление модели Follow
+        # migrations.DeleteModel(
+        #     name='Follow',
+        # ),
+        
         migrations.DeleteModel(
             name='Media',
         ),
