@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='follow',
-            unique_together=None,
-        ),
+        # migrations.AlterUniqueTogether(
+        #    name='follow',
+        #    unique_together=None,
+        # ),
         migrations.RemoveField(
             model_name='follow',
             name='follower',
