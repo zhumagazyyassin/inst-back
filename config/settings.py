@@ -10,8 +10,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
 DEBUG = True 
 
-# Android эмуляторы (10.0.2.2) және локалхост үшін рұқсат
-ALLOWED_HOSTS = ['*', 'instagram-clone-1-7wmz.onrender.com', 'localhost', '127.0.0.1', '10.0.2.2']
+# Render сервисінің аты және жергілікті хосттар үшін рұқсат
+ALLOWED_HOSTS = [
+    '*', 
+    'inst-back.onrender.com', 
+    'instagram-clone-1-7wmz.onrender.com', 
+    'localhost', 
+    '127.0.0.1', 
+    '10.0.2.2'
+]
 
 # 3. ҚОЛДАНБАЛАР
 INSTALLED_APPS = [
@@ -36,7 +43,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # Міндетті түрде осы жерде тұру керек
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -44,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls' # Егер папкаңның аты басқа болса, өзгерт
+ROOT_URLCONF = 'config.urls' 
 
 TEMPLATES = [
     {
@@ -65,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# 6. БАЗА (SQLite уақытша, Render үшін dj_database_url қолданылады)
+# 6. БАЗА
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -113,12 +120,11 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# СУРЕТТЕР ҮШІН ӨТЕ МАҢЫЗДЫ
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS (Android-тан сұраныс жіберу үшін)
+# CORS
 CORS_ALLOW_ALL_ORIGINS = True 
 APPEND_SLASH = True
