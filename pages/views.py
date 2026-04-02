@@ -4,8 +4,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db import connection
+from django.http import JsonResponse
 
-# Өз жобаңдағы файлдардан импорттау (папка аттарын тексер)
+# Өз жобаңдағы файлдардан импорттау
 from .permissions import IsAuthorOrReadOnly 
 from .models import Post, Like, Comment, Follow, Media, Story, Note
 from .serializers import (
@@ -15,80 +17,89 @@ from .serializers import (
 
 User = get_user_model()
 
-# 1. ТІРКЕЛУ (Барлығына ашық)
+# --- БАЗАНЫ ТЕКСЕРУ (HEALTH CHECK) ---
+def check_db(request):
+    try:
+        with connection.cursor() as cursor:
+            # Базадағы барлық кестелердің тізімін алу
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public'
+            """)
+            tables = [row[0] for row in cursor.fetchall()]
+        return JsonResponse({
+            "status": "Connected", 
+            "database": connection.settings_dict['NAME'],
+            "tables_found": tables
+        })
+    except Exception as e:
+        return JsonResponse({"status": "Error", "message": str(e)})
+
+# 1. ТІРКЕЛУ
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
-# 2. ПАЙДАЛАНУШЫЛАРМЕН ЖҰМЫС
+# 2. ПАЙДАЛАНУШЫЛАР
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        refresh = RefreshToken.for_user(instance)
-        return Response({
-            "message": "User updated successfully",
-            "user": serializer.data,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        })
-
-# 3. СТОРИЗБЕН ЖҰМЫС (GET барлығына ашық, POST тек логинмен)
+# 3. СТОРИЗ
 class StoryViewSet(viewsets.ModelViewSet):
     queryset = Story.objects.all().order_by('-created_at')
     serializer_class = StorySerializer
-    # Эмуляторда деректерді көру үшін AllowAny уақытша қойылды
     permission_classes = [AllowAny] 
-    http_method_names = ['get', 'post', 'delete']
 
     def perform_create(self, serializer):
-        # Пост салғанда авторды автоматты түрде тіркеу
-        serializer.save(author=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else User.objects.first()
+        serializer.save(author=user)
 
-# 4. ПОСТТАРМЕН ЖҰМЫС (Android эмуляторы үшін негізгі бөлім)
+# 4. ПОСТТАР (Суретті автоматты Media кестесіне сақтаумен)
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
-    # Android-та бірден көрінуі үшін AllowAny қалдырамыз
     permission_classes = [AllowAny] 
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else User.objects.first()
+        post = serializer.save(author=user)
+        
+        # Postman-нан келген суретті Media кестесіне жіберу
+        image_data = self.request.FILES.get('image') or self.request.FILES.get('file')
+        if image_data:
+            Media.objects.create(post=post, file=image_data, file_type='image')
 
-# 5. ЗАМЕТКАМЕН ЖҰМЫС
+# 5. ЗАМЕТКАЛАР
 class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all().order_by('-created_at')
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else User.objects.first()
+        serializer.save(author=user)
 
-# 6. МЕДИА ФАЙЛДАРМЕН ЖҰМЫС
+# 6. МЕДИА
 class MediaViewSet(viewsets.ModelViewSet):
     queryset = Media.objects.all()
     serializer_class = MediaSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    http_method_names = ['get', 'post', 'delete']
+    permission_classes = [AllowAny]
 
-# 7. ПІКІРЛЕРМЕН ЖҰМЫС
+# 7. ПІКІРЛЕР
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else User.objects.first()
+        serializer.save(author=user)
 
-# 8. ЛАЙК БАСУ (Тек тіркелгендерге)
+# 8. ЛАЙК ЖӘНЕ 9. ЖАЗЫЛУ (Өзгеріссіз қалды)
 class LikeToggleView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, pk):
@@ -99,7 +110,6 @@ class LikeToggleView(generics.GenericAPIView):
             return Response({"message": "Unliked"}, status=status.HTTP_200_OK)
         return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
 
-# 9. ЖАЗЫЛУ (FOLLOW)
 class FollowToggleView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, user_id):
